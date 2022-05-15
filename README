@@ -1,0 +1,19 @@
+Python3 program intended as a tool for solving the NYT Spelling Bee
+
+Information from the Today's Hints page is entered into hints.txt,
+then the program will parse the file and initialize the constraints.
+The user can type their successful guesses from the spelling bee into
+the command prompt, adding the word to a collection of found words
+and reflecting the changes in the given spelling bee letter matrix
+and prefix counts. In the user input loop, commands can be used to
+display the current state of the puzzle, such as:
+        ("-q", "Quit")
+        ("-h", "Help")
+        ("-i", "Show all hint info")
+        ("-m", "Show matrix")
+        ("-p", "Show prefixes")
+        ("-l", "Show letters")
+        ("-f", "Show found words")
+        ("-u", "Undo last guess")
+Currently, the program requires manual input of the spelling bee hints,
+and does not save guesses for the day's puzzle between executions. 
