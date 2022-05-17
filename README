@@ -1,6 +1,6 @@
 Python3 program intended as a tool for solving the NYT Spelling Bee
 
-Information from the Today's Hints page is entered into hints.txt,
+Information from the Today's Hints page is loaded into nytimes.html,
 then the program will parse the file and initialize the constraints.
 The user can type their successful guesses from the spelling bee into
 the command prompt, adding the word to a collection of found words
@@ -15,5 +15,19 @@ display the current state of the puzzle, such as:
         ("-l", "Show letters")
         ("-f", "Show found words")
         ("-u", "Undo last guess")
-Currently, the program requires manual input of the spelling bee hints,
-and does not save guesses for the day's puzzle between executions. 
+
+The data can be requested from the New York Times website with a
+cURL command. The correct cURL command for the given date can be
+generated with a call to curl.py:
+        python3 curl.py
+
+Copy-paste and execute the output of curl.py into the terminal,
+which will create or update nytimes.html. The program will read
+this file upon execution with:
+        python3 play.py
+
+Functions run by the main script play.py are contained in bee.py,
+and functions used to parse the nytimes.html file are contained
+in requester.py. Requester.py uses BeautifulSoup, which is a
+required installation to use this project. 
+

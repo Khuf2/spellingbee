@@ -1,3 +1,5 @@
+from requester import Soup
+
 class Bee():
     def __init__(self):
         # Need to tag the necessary letter somehow
@@ -6,6 +8,7 @@ class Bee():
         self.matrix = []
         self.prefixes = {}
         self.coreLetter = ""
+        self.summary = ""
 
         self.found = {}
         self.guessStack = []
@@ -22,16 +25,13 @@ class Bee():
         ]
 
     def readHints(self):
-        with open('hints.txt', 'r') as f:
-            l = [[char.strip("\n").strip(" ") for char in line.split(',')] for line in f]
-        divider = l.index([''])
-        for index, row in enumerate(l[1:divider-1],1):
-            if row[0].find('*') != -1:
-                row[0] = row[0].strip('*')
-                self.coreLetter = row[0]
-            self.letters[row[0]] = index
-        self.setMatrix(l[:divider])
-        self.setPrefixes(l[divider+1:])
+        # Initialize matrix, prefixes, letters, coreLetter
+        soup = Soup()
+        self.letters = soup.getLetters()
+        self.coreLetter = soup.getCoreLetter()
+        self.matrix = soup.getMatrix()
+        self.prefixes = soup.getPrefixes()
+        self.summary = soup.getSummary()
         self.initFound()
     
     def initFound(self):
@@ -45,12 +45,19 @@ class Bee():
     def getMatrix(self):
         print("Matrix:")
         for row in self.matrix:
-            print(row)
+            s = "| "
+            for e in row:
+                s += "  " + str(e) + " "
+                if len(str(e)) < 2:
+                    s += " "
+            s += " |"
+            print(s)
 
     def getPrefixes(self):
         print("Prefixes:")
         for item in self.prefixes.items():
-            print(item)
+            if item[1]:
+                print(item)
     
     def getLetters(self):
         return self.letters
@@ -79,8 +86,10 @@ class Bee():
             self.guessStack.append(guess)
 
             print("Added " + guess + " to found words.")
-
+            
             self.matrix[self.letters[guess[0]]][len(guess)-3] -= 1
+            self.matrix[self.letters[guess[0]]][-1] -= 1
+            self.matrix[-1][len(guess)-3] -= 1
             self.prefixes[guess[0:2]] -= 1
         else:
             print(guess + " has already been found.")
@@ -91,6 +100,8 @@ class Bee():
             self.found[word[0]].remove(word)
 
             self.matrix[self.letters[word[0]]][len(word)-3] += 1
+            self.matrix[self.letters[word[0]]][-1] += 1
+            self.matrix[-1][len(word)-3] += 1
             self.prefixes[word[0:2]] += 1
         else:
             print("No guesses to undo.")
