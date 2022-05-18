@@ -1,12 +1,5 @@
 from bee import Bee
 
-'''
-    The three setup methods below should read from a file
-'''
-# Ask for letters (setLetters)
-# Ask for matrix (setMatrix)
-# Ask for prefixes (setPrefixes)
-
 bee = Bee()
 bee.readHints()
 line = "***********************"

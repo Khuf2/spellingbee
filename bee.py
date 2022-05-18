@@ -1,9 +1,13 @@
 from requester import Soup
 
 class Bee():
+    '''
+        Creates variables such as letters, matrix, prefixes,
+        coreLetter, summary, found, guessStack, and commands.
+        These variables are given values after the initial
+        call to readHints() at the top of play.py.
+    '''
     def __init__(self):
-        # Need to tag the necessary letter somehow
-        # Uppercase?
         self.letters = {}
         self.matrix = []
         self.prefixes = {}
@@ -24,6 +28,12 @@ class Bee():
             "Type any other word to guess"
         ]
 
+    '''
+        Initializes the relevant variables using calls from
+        requester.py's Soup class. This reads through the
+        retrieved text and parses the variables to be sent
+        to the bee.py client.
+    '''
     def readHints(self):
         # Initialize matrix, prefixes, letters, coreLetter
         soup = Soup()
@@ -34,14 +44,25 @@ class Bee():
         self.summary = soup.getSummary()
         self.initFound()
     
+    '''
+        Initializes the found dictionary with an empty list
+        corresponding to each letter.
+    '''
     def initFound(self):
         for letter in self.letters.keys():
             self.found[letter] = []
     
+    '''
+        Prints the found dictionary item-by-item
+    '''
     def getFound(self):
         for word in self.found.items():
             print(word)
     
+    '''
+        Prints the matrix with nice formatting by
+        building an output string, s.
+    '''
     def getMatrix(self):
         print("Matrix:")
         for row in self.matrix:
@@ -53,23 +74,51 @@ class Bee():
             s += " |"
             print(s)
 
+    '''
+        Prints items from the prefix dictionary as
+        long as the count of words remaining with
+        the given prefix is non-zero.
+    '''
     def getPrefixes(self):
         print("Prefixes:")
         for item in self.prefixes.items():
             if item[1]:
                 print(item)
     
+    '''
+        Returns the dictionary of letters, which is
+        primarily used by play.py to print a list of
+        the keys (letters).
+    '''
     def getLetters(self):
         return self.letters
 
+    '''
+        Makes calls to getMatrix() and getPrefixes()
+        to print the full set of relevant data on user
+        request.
+    '''
     def getInfo(self):
         self.getMatrix()
         print()
         self.getPrefixes()
     
+    '''
+        Returns the core letter
+    '''
     def getCoreLetter(self):
         return self.coreLetter
 
+    '''
+        Function that takes a user's guess and adds it to
+        the list of found words if valid. It also updates
+        the matrix and prefixes according to the letters
+        used and the length of the word. According to the
+        Spelling Bee rules, guesses must:
+            - Be at least 4 letters long
+            - Contain an instance of the core letter
+            - Contain only letters from the given 7 letters
+    '''
     def guess(self, guess):
         guess = guess.upper()
         if len(guess) < 4:
@@ -100,6 +149,13 @@ class Bee():
             and do the printing outside in play.py
         '''
 
+    '''
+        Uses the guess stack to revert the last executed guess. This is
+        useful in case the user misinputs a word that is not accepted
+        by the spelling bee, which would alter the matrix and prefixes
+        to be inaccurate. This method shouldn't be necessary if word
+        validation was included. 
+    '''
     def undo(self):
         if len(self.guessStack) > 0:
             word = self.guessStack.pop()
@@ -112,24 +168,10 @@ class Bee():
         else:
             print("No guesses to undo.")
     
-    def setPrefixes(self, prefixes):
-        for row in prefixes:
-            for pref in row:
-                self.prefixes[pref[:2]] = int(pref[pref.find("-")+1:])
-
-    def setMatrix(self, matrix):
-        i = 0
-        while i < len(matrix):
-            j = 0
-            while j < len(matrix[i]):
-                if matrix[i][j].isdigit():
-                    matrix[i][j] = int(matrix[i][j])
-                elif matrix[i][j] == '-':
-                    matrix[i][j] = 0
-                j += 1
-            i += 1
-        self.matrix = matrix
-    
+    '''
+        Prints options for user-inputted commands from
+        the self.commands list, such as -m, -p, or -q.
+    '''
     def printCommands(self):
         for tip in self.commands:
             print(tip)
