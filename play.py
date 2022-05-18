@@ -33,11 +33,14 @@ while(True):
         bee.undo()
     else:
         code = bee.guess(c)
-        if code == -1:
+        if code == 1:
+            print("Added " + c.upper() + " to found words.")
+        elif code == 0:
+            print(c.upper() + " has already been found.")
+        elif code == -1:
             print("Word must be at least 4 letters long.")
         elif code == -2:
             print("Word must contain " + bee.getCoreLetter() + ".")
         elif code == -3:
             print("Word can only contain letters given in the puzzle.")
-        # Else successful
     print(line)

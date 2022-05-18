@@ -84,15 +84,21 @@ class Bee():
         if guess not in self.found.get(guess[0]):
             self.found[guess[0]].append(guess)
             self.guessStack.append(guess)
-
-            print("Added " + guess + " to found words.")
             
             self.matrix[self.letters[guess[0]]][len(guess)-3] -= 1
             self.matrix[self.letters[guess[0]]][-1] -= 1
             self.matrix[-1][len(guess)-3] -= 1
             self.prefixes[guess[0:2]] -= 1
+            
+            return 1
         else:
-            print(guess + " has already been found.")
+            return 0
+        '''
+            When we implement saving guesses to a file, the file
+            will call this method for each of the words in it. This
+            means that we need to change the print statements to return,
+            and do the printing outside in play.py
+        '''
 
     def undo(self):
         if len(self.guessStack) > 0:
