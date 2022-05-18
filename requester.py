@@ -43,18 +43,24 @@ class Soup():
             i += 1
         return summary
 
+    # Runs into problems when the prefix has double-digit count
     def getPrefixes(self):
-        s = self.paragraphs[5].text
+        s = self.paragraphs[5].text + " "
         # split on digits
+        print(s)
         prefixes = {}
         i = 0
         temp = ""
+        digit = False
         while i < len(s):
-            temp += s[i]
-            if s[i].isdigit():
+            if digit and not s[i].isdigit():
+                digit = False
                 temp = temp.strip(" ")
                 prefixes[temp[:2]] = int(temp[temp.find("-")+1:])
                 temp = ""
+            temp += s[i]
+            if s[i].isdigit():
+                digit = True
             i += 1
         return prefixes
 
@@ -84,12 +90,13 @@ class Soup():
                     temp = temp[-1:]
             temp += s[i]
             i += 1
+
         temp = temp.split("  ")
         temp[0] = temp[0][0]
 
         x = 0
         while x < len(temp):
-            line[x] = temp[x].strip(" ")
+            temp[x] = temp[x].strip(" ")
             if temp[x].isnumeric():
                 temp[x] = int(temp[x])
             x += 1
