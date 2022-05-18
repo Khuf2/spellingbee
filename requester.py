@@ -47,7 +47,6 @@ class Soup():
     def getPrefixes(self):
         s = self.paragraphs[5].text + " "
         # split on digits
-        print(s)
         prefixes = {}
         i = 0
         temp = ""
