@@ -55,9 +55,12 @@ class Bee():
     '''
         Prints the found dictionary item-by-item
     '''
-    def getFound(self):
+    def printFound(self):
         for word in self.found.items():
             print(word)
+    
+    def getFound(self):
+        return self.found
     
     '''
         Prints the matrix with nice formatting by
@@ -68,9 +71,12 @@ class Bee():
         for row in self.matrix:
             s = "| "
             for e in row:
-                s += "  " + str(e) + " "
-                if len(str(e)) < 2:
-                    s += " "
+                if e == 0:
+                    s += "  -  "
+                else:
+                    s += "  " + str(e) + " "
+                    if len(str(e)) < 2:
+                        s += " "
             s += " |"
             print(s)
 
@@ -91,7 +97,7 @@ class Bee():
         the keys (letters).
     '''
     def getLetters(self):
-        return self.letters
+        print(list(self.letters.keys()))
 
     '''
         Makes calls to getMatrix() and getPrefixes()
@@ -126,7 +132,7 @@ class Bee():
         if guess.find(self.getCoreLetter()) == -1:
             return -2
         for letter in guess:
-            if letter not in self.getLetters().keys():
+            if letter not in self.letters:
                 return -3
 
         # We don't verify that the word is a real word
@@ -142,12 +148,6 @@ class Bee():
             return 1
         else:
             return 0
-        '''
-            When we implement saving guesses to a file, the file
-            will call this method for each of the words in it. This
-            means that we need to change the print statements to return,
-            and do the printing outside in play.py
-        '''
 
     '''
         Uses the guess stack to revert the last executed guess. This is
@@ -160,6 +160,8 @@ class Bee():
         if len(self.guessStack) > 0:
             word = self.guessStack.pop()
             self.found[word[0]].remove(word)
+
+            print("Undid " + word)
 
             self.matrix[self.letters[word[0]]][len(word)-3] += 1
             self.matrix[self.letters[word[0]]][-1] += 1
@@ -175,6 +177,43 @@ class Bee():
     def printCommands(self):
         for tip in self.commands:
             print(tip)
+    
+    '''
+        Handles recurring user inputs, either submitting a guess and
+        printing a subsequent response, or opening another function
+        to display game information. 
+    '''
+    def readCmdLine(self, input):
+        commands = [x.strip() for x in input.split(" ")]
+        for comm in commands:
+            if comm == "-h":
+                self.printCommands()
+            elif comm == "-q":
+                return -1
+            elif comm == "-i":
+                self.getInfo()
+            elif comm == "-m":
+                self.getMatrix()
+            elif comm == "-p":
+                self.getPrefixes()
+            elif comm == "-l":
+                self.getLetters()
+            elif comm == "-f":
+                self.printFound()
+            elif comm == "-u":
+                self.undo()
+            else:
+                code = self.guess(comm)
+                if code == 1:
+                    print("Added " + comm.upper() + " to found words.")
+                elif code == 0:
+                    print(comm.upper() + " has already been found.")
+                elif code == -1:
+                    print("Word must be at least 4 letters long.")
+                elif code == -2:
+                    print("Word must contain " + self.getCoreLetter() + ".")
+                elif code == -3:
+                    print("Word can only contain letters given in the puzzle.")
 
 
     

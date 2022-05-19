@@ -1,39 +1,33 @@
 from bee import Bee
+from store import SaveHandler
 
 bee = Bee()
+save = SaveHandler()
 bee.readHints()
 line = "***********************"
 
-print("Spelling Bee Dynamic Hints Program")
+'''
+    Update save.txt to the current date if expired, read in
+    any words previously found and stored on save.txt
+'''
+save.update()
+preFound = save.readFound()
+for word in preFound:
+    bee.guess(word)
+
+'''
+    Introductory comments
+'''
+print("\n*** Spelling Bee Dynamic Hints Program ***")
+print("*** Enter -h for list of user commands ***")
 
 while(True):
     c = input("\nEnter :: ")
-    if c == "-h":
-        bee.printCommands()
-    elif c == "-q":
+    if bee.readCmdLine(c) == -1:
         break
-    elif c == "-i":
-        bee.getInfo()
-    elif c == "-m":
-        bee.getMatrix()
-    elif c == "-p":
-        bee.getPrefixes()
-    elif c == "-l":
-        print(list(bee.getLetters().keys()))
-    elif c == "-f":
-        bee.getFound()
-    elif c == "-u":
-        bee.undo()
-    else:
-        code = bee.guess(c)
-        if code == 1:
-            print("Added " + c.upper() + " to found words.")
-        elif code == 0:
-            print(c.upper() + " has already been found.")
-        elif code == -1:
-            print("Word must be at least 4 letters long.")
-        elif code == -2:
-            print("Word must contain " + bee.getCoreLetter() + ".")
-        elif code == -3:
-            print("Word can only contain letters given in the puzzle.")
     print(line)
+
+'''
+    All post-quit saving operations go here
+'''
+save.writeFound(bee.getFound())
