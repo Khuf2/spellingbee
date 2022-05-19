@@ -31,3 +31,9 @@ and functions used to parse the nytimes.html file are contained
 in requester.py. Requester.py uses BeautifulSoup, which is a
 required installation to use this project. 
 
+Additional functionality has been added in the form of store.py and
+save.txt, which it generates. This allows users to save their found
+words between executions of the program during the same day. store.py
+resets itself if the date at the top of the file doesn't match the
+current day.
+
