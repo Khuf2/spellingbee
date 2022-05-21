@@ -4,7 +4,7 @@ from store import SaveHandler
 bee = Bee()
 save = SaveHandler()
 bee.readHints()
-line = "***********************"
+line = "*************************************************"
 
 '''
     Update save.txt to the current date if expired, read in
@@ -19,13 +19,14 @@ for word in preFound:
     Introductory comments
 '''
 print("\n*** Spelling Bee Dynamic Hints Program ***")
-print("*** Enter -h for list of user commands ***")
+print("*** Enter -h for list of user commands ***\n")
+bee.getSummary()
 
 while(True):
     c = input("\nEnter :: ")
     if bee.readCmdLine(c) == -1:
         break
-    print(line)
+    print("\n" + line)
 
 '''
     All post-quit saving operations go here

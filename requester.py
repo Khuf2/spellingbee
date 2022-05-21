@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import requests
 
 '''
     From __init__'s self.paragraphs, need children 1, 2, 3, 5 (0-indexed)
@@ -16,9 +17,18 @@ class Soup():
         nyt = open('nytimes.html', "r")
         soup = BeautifulSoup(nyt, 'html.parser')
 
+        # Parsing of Hints using bs4 and cURLed HTML file
         relevant_block = soup.find_all('div', {'class': 'css-53u6y8'})[1]
         self.paragraphs = relevant_block.findChildren('p', {'class': 'evys1bk0'}, recursive=False)
+        
+        # Parsing of Spelling Bee answers using bs4 and requests
+        sb = requests.get('https://www.nytimes.com/puzzles/spelling-bee')
+        answers = BeautifulSoup(sb.content, 'html.parser')
+        relevant_block = answers.find('div', {'class': 'pz-game-screen'})
+        self.search_text = str(relevant_block.findChildren('script', recursive=False)[0])
+        
         self.coreLetter = None
+        self.letters = {}
 
     '''
         Retrieves core letter, calls self.getLetters if
@@ -29,6 +39,21 @@ class Soup():
         if self.coreLetter is None:
             self.getLetters()
         return self.coreLetter
+
+    def getAnswers(self):
+        start = self.search_text.find('"answers"')
+        end = self.search_text.find('"id"')
+        self.search_text = self.search_text[start:end]
+        start = self.search_text.find('[')
+        end = self.search_text.find(']')
+        self.search_text = self.search_text[start+1:end]
+
+        answers = self.search_text.split(",")
+        i = 0
+        while i < len(answers):
+            answers[i] = answers[i][1:-1].upper()
+            i += 1
+        return answers
 
     '''
         Returns alphabetically sorted dictionary of candidate
@@ -47,6 +72,7 @@ class Soup():
         for row_index, char in enumerate(letters, 1):
             l[char] = row_index
         
+        self.letters = l
         return l
 
     '''
@@ -100,6 +126,12 @@ class Soup():
         matrix = []
         s = "* " + self.paragraphs[3].text
 
+        # The below variables are used to account for rows omitted from
+        # the given NYTimes Hints table
+        letters = ['*'] + list(self.letters.keys())
+        letters.sort()
+        letter_index = 0
+
         i = 0
         temp = ""
         while i < len(s):
@@ -122,8 +154,18 @@ class Soup():
                         line[x] = line[x].strip(" ")
                         if line[x].isnumeric():
                             line[x] = int(line[x])
+                        elif line[x] == '-':
+                            line[x] = 0
                         x += 1
+
+                    while letter_index < len(letters) and line[0][0] != letters[letter_index]:
+                        # Append next letter of letters with blank line
+                        # Increment letter_index
+                        blank_line = [letters[letter_index]] + [0 for x in range(len(line)-1)]
+                        matrix.append(blank_line)
+                        letter_index += 1
                     matrix.append(line)
+                    letter_index += 1
                     temp = temp[-1:]
             temp += s[i]
             i += 1
@@ -139,6 +181,12 @@ class Soup():
             if temp[x].isnumeric():
                 temp[x] = int(temp[x])
             x += 1
+        while letter_index < len(letters) and line[0][0] != letters[letter_index]:
+            # Append next letter of letters with blank line
+            # Increment letter_index
+            blank_line = [letters[letter_index]] + [0 for x in range(len(line)-1)]
+            matrix.append(blank_line)
+            letter_index += 1
 
         matrix.append(temp)
         return matrix

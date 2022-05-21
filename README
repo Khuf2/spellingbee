@@ -37,3 +37,11 @@ words between executions of the program during the same day. store.py
 resets itself if the date at the top of the file doesn't match the
 current day.
 
+More functionality has been added to account for letters in the puzzle
+that don't start any words, and are omitted from the matrix. Using
+python requests, the program now parses the Spelling Bee game page and
+pulls a list of all answers from the javascript. Guesses submitted to
+the program are now validated against that list before being accepted,
+meaning that the matrix should never undergo invalid updates, and the
+utility of the undo function is limited because errors are never stored. 
+

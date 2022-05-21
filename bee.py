@@ -13,6 +13,7 @@ class Bee():
         self.prefixes = {}
         self.coreLetter = ""
         self.summary = ""
+        self.answers = []
 
         self.found = {}
         self.guessStack = []
@@ -35,13 +36,13 @@ class Bee():
         to the bee.py client.
     '''
     def readHints(self):
-        # Initialize matrix, prefixes, letters, coreLetter
         soup = Soup()
         self.letters = soup.getLetters()
         self.coreLetter = soup.getCoreLetter()
         self.matrix = soup.getMatrix()
         self.prefixes = soup.getPrefixes()
         self.summary = soup.getSummary()
+        self.answers = soup.getAnswers()
         self.initFound()
     
     '''
@@ -61,6 +62,9 @@ class Bee():
     
     def getFound(self):
         return self.found
+
+    def getAnswers(self):
+        return self.answers
     
     '''
         Prints the matrix with nice formatting by
@@ -90,6 +94,9 @@ class Bee():
         for item in self.prefixes.items():
             if item[1]:
                 print(item)
+
+    def getSummary(self):
+        print(" ".join(self.summary))
     
     '''
         Returns the dictionary of letters, which is
@@ -124,6 +131,8 @@ class Bee():
             - Be at least 4 letters long
             - Contain an instance of the core letter
             - Contain only letters from the given 7 letters
+        Refer to readCmdLine() for more information on what
+        different return values correspond to.
     '''
     def guess(self, guess):
         guess = guess.upper()
@@ -136,16 +145,24 @@ class Bee():
                 return -3
 
         # We don't verify that the word is a real word
-        if guess not in self.found.get(guess[0]):
-            self.found[guess[0]].append(guess)
-            self.guessStack.append(guess)
+        try:
+            if guess not in self.found.get(guess[0]):
+                if guess in self.answers:
+                    self.prefixes[guess[0:2]] -= 1
+                    self.found[guess[0]].append(guess)
+                    self.guessStack.append(guess)
+                    
+                    self.matrix[self.letters[guess[0]]][len(guess)-3] -= 1
+                    self.matrix[self.letters[guess[0]]][-1] -= 1
+                    self.matrix[-1][len(guess)-3] -= 1
+                    self.matrix[-1][-1] -= 1
+
+                    return 1 
+                else:
+                    return -4
+        except:
+            return -5
             
-            self.matrix[self.letters[guess[0]]][len(guess)-3] -= 1
-            self.matrix[self.letters[guess[0]]][-1] -= 1
-            self.matrix[-1][len(guess)-3] -= 1
-            self.prefixes[guess[0:2]] -= 1
-            
-            return 1
         else:
             return 0
 
@@ -161,11 +178,12 @@ class Bee():
             word = self.guessStack.pop()
             self.found[word[0]].remove(word)
 
-            print("Undid " + word)
+            print("Undid " + word + ".")
 
             self.matrix[self.letters[word[0]]][len(word)-3] += 1
             self.matrix[self.letters[word[0]]][-1] += 1
             self.matrix[-1][len(word)-3] += 1
+            self.matrix[-1][-1] += 1
             self.prefixes[word[0:2]] += 1
         else:
             print("No guesses to undo.")
@@ -214,6 +232,10 @@ class Bee():
                     print("Word must contain " + self.getCoreLetter() + ".")
                 elif code == -3:
                     print("Word can only contain letters given in the puzzle.")
+                elif code == -4:
+                    print("Word was not accepted as an answer.")
+                elif code == -5:
+                    print("Guess unsuccessful, perhaps there is no word with that prefix?")
 
 
     
