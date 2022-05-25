@@ -25,7 +25,6 @@ class Bee():
             ("-p", "Show prefixes"),
             ("-l", "Show letters"),
             ("-f", "Show found words"),
-            ("-u", "Undo last guess"),
             "Type any other word to guess"
         ]
 
@@ -165,28 +164,6 @@ class Bee():
             
         else:
             return 0
-
-    '''
-        Uses the guess stack to revert the last executed guess. This is
-        useful in case the user misinputs a word that is not accepted
-        by the spelling bee, which would alter the matrix and prefixes
-        to be inaccurate. This method shouldn't be necessary if word
-        validation was included. 
-    '''
-    def undo(self):
-        if len(self.guessStack) > 0:
-            word = self.guessStack.pop()
-            self.found[word[0]].remove(word)
-
-            print("Undid " + word + ".")
-
-            self.matrix[self.letters[word[0]]][len(word)-3] += 1
-            self.matrix[self.letters[word[0]]][-1] += 1
-            self.matrix[-1][len(word)-3] += 1
-            self.matrix[-1][-1] += 1
-            self.prefixes[word[0:2]] += 1
-        else:
-            print("No guesses to undo.")
     
     '''
         Prints options for user-inputted commands from
@@ -218,12 +195,13 @@ class Bee():
                 self.getLetters()
             elif comm == "-f":
                 self.printFound()
-            elif comm == "-u":
-                self.undo()
             else:
                 code = self.guess(comm)
                 if code == 1:
-                    print("Added " + comm.upper() + " to found words.")
+                    val, pangram = self.wordValue(comm.upper())
+                    print("Added " + comm.upper() + " to found words for " + str(val) + " points.")
+                    if pangram:
+                        print(comm.upper() + " was a PANGRAM!")
                 elif code == 0:
                     print(comm.upper() + " has already been found.")
                 elif code == -1:
@@ -233,9 +211,34 @@ class Bee():
                 elif code == -3:
                     print("Word can only contain letters given in the puzzle.")
                 elif code == -4:
-                    print("Word was not accepted as an answer.")
+                    print(comm.upper() + " was not accepted as an answer.")
                 elif code == -5:
                     print("Guess unsuccessful, perhaps there is no word with that prefix?")
+
+    '''
+    Get spelling bee word value of a guess, taking in a bool value of pangram.
+    '''
+    def wordValue(self, word):
+        val, pangram = None, self.isPangram(word)
+        if len(word) == 4:
+            val = 1
+        elif len(word) < 7:
+            val = len(word)
+        else:
+            val = len(word) + int(self.isPangram(word))*7
+        return(val, pangram)
+
+    '''
+    Check to see if all letters are present in the guess.
+    '''
+    def isPangram(self, word):
+        flag_array = [0 for x in range(7)]
+        for char in word:
+            flag_array[self.letters.get(char)-1] = 1
+        if 0 in flag_array:
+            return False
+        return True
+        
 
 
     

@@ -18,7 +18,20 @@ class Soup():
         soup = BeautifulSoup(nyt, 'html.parser')
 
         # Parsing of Hints using bs4 and cURLed HTML file
-        relevant_block = soup.find_all('div', {'class': 'css-53u6y8'})[1]
+        '''
+            Changed so that it will read the text of different
+            HTML blocks and find the spelling bee grid div.
+            This was a problem on infrequent cases.
+        ''' 
+        rbs = soup.find_all('div', {'class': 'css-53u6y8'})
+        for index, block in enumerate(rbs):
+            if (block.text[:20]).find("Spelling Bee Grid") > -1:
+                break
+        if index == len(rbs):
+            print("Could not find the spelling bee grid.")
+            return -1
+        
+        relevant_block = rbs[index]
         self.paragraphs = relevant_block.findChildren('p', {'class': 'evys1bk0'}, recursive=False)
         
         # Parsing of Spelling Bee answers using bs4 and requests

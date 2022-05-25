@@ -1,6 +1,10 @@
 from bee import Bee
 from store import SaveHandler
 
+'''
+    Initialize Bee and SaveHandler() objects, along with
+    line divider string for console logging.
+'''
 bee = Bee()
 save = SaveHandler()
 bee.readHints()
@@ -22,6 +26,11 @@ print("\n*** Spelling Bee Dynamic Hints Program ***")
 print("*** Enter -h for list of user commands ***\n")
 bee.getSummary()
 
+'''
+    The main program loop. Awaits input, parses it,
+    then executes relevant command before returning to
+    the loop (unless quit command issued).
+'''
 while(True):
     c = input("\nEnter :: ")
     if bee.readCmdLine(c) == -1:
