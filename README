@@ -14,7 +14,6 @@ display the current state of the puzzle, such as:
         ("-p", "Show prefixes")
         ("-l", "Show letters")
         ("-f", "Show found words")
-        ("-u", "Undo last guess")
 
 The data can be requested from the New York Times website with a
 cURL command. The correct cURL command for the given date can be
@@ -42,6 +41,5 @@ that don't start any words, and are omitted from the matrix. Using
 python requests, the program now parses the Spelling Bee game page and
 pulls a list of all answers from the javascript. Guesses submitted to
 the program are now validated against that list before being accepted,
-meaning that the matrix should never undergo invalid updates, and the
-utility of the undo function is limited because errors are never stored. 
+meaning that the matrix should never undergo invalid updates.
 
