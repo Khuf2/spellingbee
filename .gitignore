@@ -1,5 +1,4 @@
-nytimes.html
-nytimes_old.html
+*.html
+*.txt
 .DS_Store
 __pycache__/
-save.txt
