@@ -3,7 +3,7 @@ from requester import Soup
 class Bee():
     '''
         Creates variables such as letters, matrix, prefixes,
-        coreLetter, summary, found, guessStack, and commands.
+        coreLetter, summary, found, and commands.
         These variables are given values after the initial
         call to readHints() at the top of play.py.
     '''
@@ -16,7 +16,6 @@ class Bee():
         self.answers = []
 
         self.found = {}
-        self.guessStack = []
         self.commands = [
             ("-q", "Quit"),
             ("-h", "Help"),
@@ -149,7 +148,6 @@ class Bee():
                 if guess in self.answers:
                     self.prefixes[guess[0:2]] -= 1
                     self.found[guess[0]].append(guess)
-                    self.guessStack.append(guess)
                     
                     self.matrix[self.letters[guess[0]]][len(guess)-3] -= 1
                     self.matrix[self.letters[guess[0]]][-1] -= 1

@@ -23,16 +23,18 @@ class Soup():
             HTML blocks and find the spelling bee grid div.
             This was a problem on infrequent cases.
         ''' 
-        rbs = soup.find_all('div', {'class': 'css-53u6y8'})
-        for index, block in enumerate(rbs):
-            if (block.text[:20]).find("Spelling Bee Grid") > -1:
-                break
-        if index == len(rbs):
-            print("Could not find the spelling bee grid.")
-            return -1
+        relevant_block = soup.find('section', {'class': 'meteredContent'})
+        self.paragraphs = relevant_block.findChildren('p', {'class': 'content'}, recursive=True)
+        self.matrix = relevant_block.findChildren('table', recursive=True)
         
-        relevant_block = rbs[index]
-        self.paragraphs = relevant_block.findChildren('p', {'class': 'evys1bk0'}, recursive=False)
+        '''
+            Trash paragraph 1.
+            Paragraph 2 = letters
+            Paragraph 3 = Words, Points, Pangrams, Bingos
+            Trash paragraph 4.
+            Paragraph 5 = Table/Matrix
+
+        '''
         
         # Parsing of Spelling Bee answers using bs4 and requests
         sb = requests.get('https://www.nytimes.com/puzzles/spelling-bee')
@@ -76,8 +78,11 @@ class Soup():
         bee.py functions to update the matrix accordingly.
     '''
     def getLetters(self):
-        s = self.paragraphs[1].text
-        letters = (s.split(" "))
+        s = self.paragraphs[1].text.upper()
+        s = s.replace("\n", "").split()
+        letters = []
+        for e in s:
+            letters.append(e)
         self.coreLetter = letters[0]
         # Put letters in alphabetical order
         letters.sort()
@@ -110,23 +115,12 @@ class Soup():
         that prefix. 
     '''
     def getPrefixes(self):
-        s = self.paragraphs[5].text + " "
+        prefixList = self.paragraphs[4].text.replace("\n", "").split()
         prefixes = {}
-        temp = ""
-        digit = False
-        i = 0
-        while i < len(s):
-            # Below conditional called when reading of an integer ends
-            # Add the given prefix from temp and continue
-            if digit and not s[i].isdigit():
-                digit = False
-                temp = temp.strip(" ")
-                prefixes[temp[:2]] = int(temp[temp.find("-")+1:])
-                temp = ""
-            temp += s[i]
-            if s[i].isdigit():
-                digit = True
-            i += 1
+        for prefix in prefixList:
+            p = prefix.split("-")
+            prefixes[p[0].upper()] = int(p[1])
+
         return prefixes
 
     '''
@@ -137,69 +131,16 @@ class Soup():
     '''
     def getMatrix(self):
         matrix = []
-        s = "* " + self.paragraphs[3].text
 
-        # The below variables are used to account for rows omitted from
-        # the given NYTimes Hints table
-        letters = ['*'] + list(self.letters.keys())
-        letters.sort()
-        letter_index = 0
+        rows = self.matrix[0].findChildren("tr", {'class': 'row'}, recursive=True)
+        for row in rows:
+            cells = row.findChildren("td", {'class': 'cell'}, recursive=False)
+            matrixRow = []
+            for cell in cells:
+                if cell.text.replace(":", "").isdigit():
+                    matrixRow.append(int(cell.text.replace(":", "")))
+                else:
+                    matrixRow.append(cell.text.upper())
+            matrix.append(matrixRow)
 
-        i = 0
-        temp = ""
-        while i < len(s):
-            if s[i] == ":":
-                # This conditional ignores the first colon
-                if len(temp) > 3:
-                    # Separates values in a given row
-                    line = temp[:-1].split("  ")
-                    # Removes colon if present
-                    line[0] = line[0][0]
-                    # Designate core letter with an asterisk
-                    if line[0] == self.coreLetter:
-                        line[0] += "*"
-                    
-                    # Convert all numerical values into ints
-                    # Strip any whitespace off of values
-                    # Add to building matrix
-                    x = 0
-                    while x < len(line):
-                        line[x] = line[x].strip(" ")
-                        if line[x].isnumeric():
-                            line[x] = int(line[x])
-                        elif line[x] == '-':
-                            line[x] = 0
-                        x += 1
-
-                    while letter_index < len(letters) and line[0][0] != letters[letter_index]:
-                        # Append next letter of letters with blank line
-                        # Increment letter_index
-                        blank_line = [letters[letter_index]] + [0 for x in range(len(line)-1)]
-                        matrix.append(blank_line)
-                        letter_index += 1
-                    matrix.append(line)
-                    letter_index += 1
-                    temp = temp[-1:]
-            temp += s[i]
-            i += 1
-
-        # Same process as within the while loop
-        # One last iteration to catch hanging temp value
-        temp = temp.split("  ")
-        temp[0] = temp[0][0]
-
-        x = 0
-        while x < len(temp):
-            temp[x] = temp[x].strip(" ")
-            if temp[x].isnumeric():
-                temp[x] = int(temp[x])
-            x += 1
-        while letter_index < len(letters) and line[0][0] != letters[letter_index]:
-            # Append next letter of letters with blank line
-            # Increment letter_index
-            blank_line = [letters[letter_index]] + [0 for x in range(len(line)-1)]
-            matrix.append(blank_line)
-            letter_index += 1
-
-        matrix.append(temp)
         return matrix
